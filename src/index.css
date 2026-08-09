@@ -135,24 +135,6 @@ p.subtitle {
   filter: grayscale(0.5);
 }
 
-/* Progress Bar */
-.progress-container {
-  width: 100%;
-  height: 8px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 4px;
-  margin-top: 1.5rem;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
-  background: var(--gradient-accent);
-  width: 0%;
-  transition: width 0.3s ease;
-  border-radius: 4px;
-}
-
 /* Result Section */
 .result-section {
   margin-top: 2rem;
@@ -165,6 +147,27 @@ p.subtitle {
   border-radius: var(--radius-md);
   border: 1px solid var(--card-border);
   margin-bottom: 1rem;
+}
+
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.5rem 1rem;
+  border-radius: 100px;
+  border: 1px solid var(--card-border);
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.github-link:hover {
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Utils */

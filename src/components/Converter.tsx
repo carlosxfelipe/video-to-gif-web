@@ -11,7 +11,6 @@ interface ConverterProps {
 export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
   const [loaded, setLoaded] = useState(false);
   const [isConverting, setIsConverting] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [gifUrl, setGifUrl] = useState<string | null>(null);
   const [fps, setFps] = useState(10);
   const [scale, setScale] = useState(50);
@@ -25,10 +24,6 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
 
     ffmpeg.on("log", ({ message }) => {
       console.log(message);
-    });
-
-    ffmpeg.on("progress", ({ progress }) => {
-      setProgress(progress * 100);
     });
 
     try {
@@ -55,7 +50,6 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
 
   const convertToGif = async () => {
     setIsConverting(true);
-    setProgress(0);
     const ffmpeg = ffmpegRef.current;
 
     try {
@@ -272,24 +266,16 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
           </button>
 
           {isConverting && (
-            <div>
-              <div className="progress-container">
-                <div
-                  className="progress-bar"
-                  style={{ width: `${progress}%` }}
-                ></div>
-              </div>
-              <p
-                style={{
-                  textAlign: "center",
-                  marginTop: "0.5rem",
-                  fontSize: "0.9rem",
-                  color: "var(--text-secondary)",
-                }}
-              >
-                {Math.round(progress)}%
-              </p>
-            </div>
+            <p
+              style={{
+                textAlign: "center",
+                marginTop: "1.5rem",
+                fontSize: "0.95rem",
+                color: "var(--text-secondary)",
+              }}
+            >
+              Processando vídeo, por favor aguarde...
+            </p>
           )}
         </div>
       ) : (

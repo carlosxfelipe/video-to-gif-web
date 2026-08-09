@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Dropzone } from "./components/Dropzone";
 import { Converter } from "./components/Converter";
+import { GithubIcon } from "./components/GithubIcon";
 
 function App() {
   const [file, setFile] = useState<File | null>(null);
@@ -23,24 +24,24 @@ function App() {
 
       <footer
         style={{
-          marginTop: "2rem",
+          marginTop: "3rem",
           textAlign: "center",
           color: "var(--text-secondary)",
-          fontSize: "0.9rem",
+          fontSize: "0.95rem",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "1rem",
         }}
       >
-        Desenvolvido por{" "}
         <a
-          href="https://github.com/carlosxfelipe"
+          href="https://github.com/carlosxfelipe/video-to-gif-web"
           target="_blank"
           rel="noopener noreferrer"
-          style={{
-            color: "var(--accent-1)",
-            textDecoration: "none",
-            fontWeight: 500,
-          }}
+          className="github-link"
         >
-          Carlos Felipe Araújo
+          <GithubIcon size={18} />
+          Código Aberto no GitHub
         </a>
       </footer>
     </>
