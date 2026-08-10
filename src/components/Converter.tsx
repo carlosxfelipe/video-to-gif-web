@@ -13,7 +13,8 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
   const [isConverting, setIsConverting] = useState(false);
   const [gifUrl, setGifUrl] = useState<string | null>(null);
   const [fps, setFps] = useState(10);
-  const [scale, setScale] = useState(50);
+  const [scale, setScale] = useState(100);
+  const [colors, setColors] = useState(64);
   const [loop, setLoop] = useState(true);
 
   const ffmpegRef = useRef(new FFmpeg());
@@ -65,7 +66,7 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
 
       // Executa o comando de conversão usando a escala percentual exata do Swift
       // Usamos trunc( ... / 2 ) * 2 para garantir que a resolução sempre seja um número par (exigência de muitos codecs e para evitar bugs)
-      const filter = `fps=${fps},scale='trunc(iw*(${scale}/100)/2)*2':'trunc(ih*(${scale}/100)/2)*2':flags=lanczos,split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=bayer:bayer_scale=5`;
+      const filter = `fps=${fps},scale='trunc(iw*(${scale}/100)/2)*2':'trunc(ih*(${scale}/100)/2)*2':flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=${colors}:stats_mode=diff[p];[s1][p]paletteuse=dither=bayer:bayer_scale=5`;
 
       await ffmpeg.exec([
         "-i",
@@ -209,6 +210,54 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
                 style={{ width: "100%", accentColor: "var(--accent-1)" }}
                 disabled={isConverting}
               />
+            </div>
+
+            <div style={{ marginBottom: "1.5rem" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                <span
+                  style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}
+                >
+                  Cores
+                </span>
+                <span style={{ fontSize: "0.9rem", fontWeight: 600 }}>
+                  {colors}
+                </span>
+              </div>
+              <select
+                value={colors}
+                onChange={(e) => setColors(Number(e.target.value))}
+                style={{
+                  width: "100%",
+                  padding: "0.5rem",
+                  borderRadius: "6px",
+                  border: "1px solid var(--card-border)",
+                  background: "rgba(255,255,255,0.05)",
+                  color: "white",
+                  outline: "none",
+                  fontSize: "0.9rem",
+                  cursor: "pointer",
+                }}
+                disabled={isConverting}
+              >
+                <option value={256} style={{ color: "black" }}>
+                  256 (Máxima qualidade)
+                </option>
+                <option value={128} style={{ color: "black" }}>
+                  128 (Equilíbrio)
+                </option>
+                <option value={64} style={{ color: "black" }}>
+                  64 (Tamanho menor)
+                </option>
+                <option value={32} style={{ color: "black" }}>
+                  32 (Menor tamanho)
+                </option>
+              </select>
             </div>
 
             <div
