@@ -1,7 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
-import { Loader2, Download, Video, ArrowRight } from "lucide-react";
+import {
+  Loader2,
+  Download,
+  Video,
+  ArrowRight,
+  AlertTriangle,
+} from "lucide-react";
 
 interface ConverterProps {
   videoFile: File;
@@ -64,11 +70,16 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
       // Escreve o arquivo na memória virtual do Wasm
       await ffmpeg.writeFile(inputName, await fetchFile(videoFile));
 
+      // Remove output.gif se existir de uma conversão anterior para evitar ler lixo
+      try {
+        await ffmpeg.deleteFile("output.gif");
+      } catch (e) {}
+
       // Executa o comando de conversão usando a escala percentual exata do Swift
       // Usamos trunc( ... / 2 ) * 2 para garantir que a resolução sempre seja um número par (exigência de muitos codecs e para evitar bugs)
       const filter = `fps=${fps},scale='trunc(iw*(${scale}/100)/2)*2':'trunc(ih*(${scale}/100)/2)*2':flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=${colors}:stats_mode=diff[p];[s1][p]paletteuse=dither=bayer:bayer_scale=5`;
 
-      await ffmpeg.exec([
+      let ret = await ffmpeg.exec([
         "-i",
         inputName,
         "-filter_complex",
@@ -80,16 +91,48 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
         "output.gif",
       ]);
 
+      if (ret !== 0) {
+        console.warn("Conversão complexa falhou, tentando fallback simples...");
+        const simpleFilter = `fps=${fps},scale='trunc(iw*(${scale}/100)/2)*2':'trunc(ih*(${scale}/100)/2)*2'`;
+        ret = await ffmpeg.exec([
+          "-i",
+          inputName,
+          "-vf",
+          simpleFilter,
+          "-loop",
+          loop ? "0" : "-1",
+          "-c:v",
+          "gif",
+          "output.gif",
+        ]);
+      }
+
+      if (ret !== 0) {
+        throw new Error(`FFmpeg falhou com código de erro: ${ret}`);
+      }
+
       const data = await ffmpeg.readFile("output.gif");
+      const uint8Data = data as Uint8Array;
+
+      if (uint8Data.length === 0) {
+        throw new Error(
+          "O arquivo gerado está vazio (0 bytes). O formato do vídeo pode não ser suportado.",
+        );
+      }
+
       const url = URL.createObjectURL(
-        new Blob([(data as Uint8Array).buffer as ArrayBuffer], {
+        new Blob([uint8Data.buffer as ArrayBuffer], {
           type: "image/gif",
         }),
       );
       setGifUrl(url);
     } catch (e) {
       console.error("Erro na conversão", e);
-      alert("Falha ao converter o arquivo.");
+      alert(
+        e instanceof Error
+          ? e.message
+          : "Falha ao converter o arquivo. Verifique se o formato/codec do vídeo é suportado.",
+      );
     } finally {
       setIsConverting(false);
     }
@@ -118,12 +161,40 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
           alignItems: "center",
           justifyContent: "center",
           gap: "1rem",
-          marginBottom: "2rem",
+          marginBottom: "1rem",
         }}
       >
         <Video size={32} color="var(--accent-1)" />
         <span style={{ fontWeight: 600 }}>{videoFile.name}</span>
       </div>
+
+      {videoFile.name.toLowerCase().endsWith(".webm") && !gifUrl && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            padding: "0.75rem 1rem",
+            background: "rgba(255, 165, 0, 0.1)",
+            border: "1px solid rgba(255, 165, 0, 0.3)",
+            borderRadius: "var(--radius-lg)",
+            color: "#ffa500",
+            fontSize: "0.85rem",
+            margin: "0 auto 1.5rem auto",
+            maxWidth: "400px",
+            width: "100%",
+            textAlign: "left",
+            lineHeight: "1.4",
+          }}
+        >
+          <AlertTriangle size={20} style={{ flexShrink: 0 }} />
+          <span>
+            <strong>Aviso:</strong> Alguns arquivos .webm (como AV1) podem não
+            ser totalmente suportados pelo conversor de navegador e podem
+            falhar.
+          </span>
+        </div>
+      )}
 
       {!gifUrl ? (
         <div
@@ -256,6 +327,12 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
                 </option>
                 <option value={32} style={{ color: "black" }}>
                   32 (Menor tamanho)
+                </option>
+                <option value={16} style={{ color: "black" }}>
+                  16 (Cores limitadas)
+                </option>
+                <option value={8} style={{ color: "black" }}>
+                  8 (Estilo retrô)
                 </option>
               </select>
             </div>

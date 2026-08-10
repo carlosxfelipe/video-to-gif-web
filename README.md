@@ -24,6 +24,10 @@ This project was built to provide a client-side approach to video conversion usi
 - Lucide React
 - Vanilla CSS
 
+## Known Limitations
+
+- **WebM and AV1 Codecs:** While this tool supports various video formats (MP4, WebM, MOV), some newer `.webm` files might fail to convert if they use the **AV1** codec. This is because the application runs entirely in the browser using a standard WebAssembly build of FFmpeg (`@ffmpeg/core`), which does not always include full AV1 decoding capabilities due to file size constraints. If a complex conversion fails due to an unsupported codec or color profile, the app will automatically try a fallback simpler conversion, but some files may still be incompatible.
+
 ## Getting Started
 
 ### Prerequisites
