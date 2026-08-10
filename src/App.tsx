@@ -11,7 +11,7 @@ function App() {
       <div className="glass-card">
         <h1>Video2Gif</h1>
         <p className="subtitle">
-          Converta seus vídeos MP4 para GIF direto no navegador, com total
+          Converta seus vídeos para GIF direto no navegador, com total
           privacidade e velocidade.
         </p>
 

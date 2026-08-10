@@ -297,22 +297,40 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
             </div>
           </div>
 
-          <button
-            className="btn-primary"
-            onClick={convertToGif}
-            disabled={isConverting}
+          <div
+            style={{
+              display: "flex",
+              gap: "1rem",
+              width: "100%",
+              maxWidth: "400px",
+            }}
           >
-            {isConverting ? (
-              <>
-                <Loader2 style={{ animation: "spin 2s linear infinite" }} />{" "}
-                Convertendo...
-              </>
-            ) : (
-              <>
-                <ArrowRight /> Iniciar Conversão
-              </>
-            )}
-          </button>
+            <button
+              className="btn-primary"
+              onClick={onReset}
+              disabled={isConverting}
+              style={{ flex: 1, background: "rgba(255,255,255,0.1)" }}
+            >
+              Voltar
+            </button>
+            <button
+              className="btn-primary"
+              onClick={convertToGif}
+              disabled={isConverting}
+              style={{ flex: 2 }}
+            >
+              {isConverting ? (
+                <>
+                  <Loader2 style={{ animation: "spin 2s linear infinite" }} />{" "}
+                  Convertendo...
+                </>
+              ) : (
+                <>
+                  <ArrowRight /> Iniciar Conversão
+                </>
+              )}
+            </button>
+          </div>
 
           {isConverting && (
             <p
