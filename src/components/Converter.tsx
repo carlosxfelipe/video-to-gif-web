@@ -13,6 +13,7 @@ import {
   isAv1WebM,
   extractFramesWithBrowser,
 } from "../utils/videoUtils";
+import { play } from "cuelume";
 
 interface ConverterProps {
   videoFile: File;
@@ -200,8 +201,10 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
         }),
       );
       setGifUrl(url);
+      play("success");
     } catch (e) {
       console.error("Erro na conversão", e);
+      play("error");
       alert(
         e instanceof Error
           ? e.message
@@ -326,6 +329,7 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
                   onChange={(e) => setLoop(e.target.checked)}
                   style={styles.checkbox}
                   disabled={isConverting}
+                  data-cuelume-toggle="true"
                 />
               </label>
             </div>
@@ -337,6 +341,8 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
               onClick={onReset}
               disabled={isConverting}
               style={styles.btnSecondary}
+              data-cuelume-press="true"
+              data-cuelume-release="true"
             >
               Voltar
             </button>
@@ -345,6 +351,8 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
               onClick={convertToGif}
               disabled={isConverting}
               style={styles.btnPrimary}
+              data-cuelume-press="true"
+              data-cuelume-release="true"
             >
               {isConverting ? (
                 <>
@@ -375,6 +383,8 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
               download={`${videoFile.name.replace(".mp4", "")}.gif`}
               className="btn-primary"
               style={styles.btnHalf}
+              data-cuelume-press="true"
+              data-cuelume-release="true"
             >
               <Download size={20} /> Baixar GIF
             </a>
@@ -382,6 +392,8 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
               className="btn-primary"
               onClick={onReset}
               style={styles.btnSecondary}
+              data-cuelume-press="true"
+              data-cuelume-release="true"
             >
               Novo Vídeo
             </button>

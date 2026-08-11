@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { bind } from "cuelume";
 import { Dropzone } from "./components/Dropzone";
 import { Converter } from "./components/Converter";
 import { GithubIcon } from "./components/GithubIcon";
 
 function App() {
   const [file, setFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    bind();
+  }, []);
 
   return (
     <>
@@ -39,6 +44,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
           className="github-link"
+          data-cuelume-hover="tick"
         >
           <GithubIcon size={18} />
           Código Aberto no GitHub
