@@ -22,8 +22,54 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
   const [scale, setScale] = useState(100);
   const [colors, setColors] = useState(64);
   const [loop, setLoop] = useState(true);
+  const [videoMeta, setVideoMeta] = useState<{
+    width: number;
+    height: number;
+    duration: number;
+  } | null>(null);
 
   const ffmpegRef = useRef(new FFmpeg());
+
+  // Carrega dimensões e duração do vídeo para estimar o tamanho do GIF
+  useEffect(() => {
+    const video = document.createElement("video");
+    const url = URL.createObjectURL(videoFile);
+    video.preload = "metadata";
+    video.muted = true;
+    video.onloadedmetadata = () => {
+      setVideoMeta({
+        width: video.videoWidth,
+        height: video.videoHeight,
+        duration: isFinite(video.duration) ? video.duration : 0,
+      });
+      URL.revokeObjectURL(url);
+    };
+    video.onerror = () => {
+      setVideoMeta(null);
+      URL.revokeObjectURL(url);
+    };
+    video.src = url;
+    return () => URL.revokeObjectURL(url);
+  }, [videoFile]);
+
+  const formatBytes = (bytes: number): string => {
+    if (bytes >= 1e6) return `${(bytes / 1e6).toFixed(1)} MB`;
+    return `${Math.max(1, Math.round(bytes / 1e3))} KB`;
+  };
+
+  // Estimativa empírica: ~0.4 bytes por pixel por frame com 64 cores,
+  // ajustada pela profundidade da paleta (log2 das cores)
+  const getEstimate = () => {
+    if (!videoMeta || videoMeta.width === 0) return null;
+    const outW = Math.trunc((videoMeta.width * (scale / 100)) / 2) * 2;
+    const outH = Math.trunc((videoMeta.height * (scale / 100)) / 2) * 2;
+    const frames = Math.max(1, Math.ceil(videoMeta.duration * fps));
+    const bytesPerPixel = 0.4 * (Math.log2(colors) / 6);
+    const bytes = outW * outH * frames * bytesPerPixel;
+    return { outW, outH, bytes };
+  };
+
+  const estimate = getEstimate();
 
   // Detecta se um .webm usa o codec AV1 procurando o CodecID "V_AV1" no cabeçalho
   const isAv1WebM = async (file: File): Promise<boolean> => {
@@ -186,7 +232,7 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
         }
 
         // Os frames já estão no FPS desejado, então o filtro não precisa de fps=
-        const av1Filter = `scale='trunc(iw*(${scale}/100)/2)*2':'trunc(ih*(${scale}/100)/2)*2':flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=${colors}:stats_mode=diff[p];[s1][p]paletteuse=dither=bayer:bayer_scale=5`;
+        const av1Filter = `scale='trunc(iw*(${scale}/100)/2)*2':'trunc(ih*(${scale}/100)/2)*2':flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=${colors}:stats_mode=diff[p];[s1][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle`;
 
         ret = await ffmpeg.exec([
           "-framerate",
@@ -475,6 +521,41 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
                 </option>
               </select>
             </div>
+
+            {estimate && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "1.5rem",
+                  padding: "0.75rem 1rem",
+                  background:
+                    estimate.bytes > 20e6
+                      ? "rgba(255, 165, 0, 0.1)"
+                      : "rgba(255,255,255,0.05)",
+                  border:
+                    estimate.bytes > 20e6
+                      ? "1px solid rgba(255, 165, 0, 0.3)"
+                      : "1px solid var(--card-border)",
+                  borderRadius: "8px",
+                  fontSize: "0.85rem",
+                }}
+              >
+                <span style={{ color: "var(--text-secondary)" }}>
+                  {estimate.outW}×{estimate.outH}
+                </span>
+                <span
+                  style={{
+                    fontWeight: 600,
+                    color:
+                      estimate.bytes > 20e6 ? "#ffa500" : "var(--text-primary)",
+                  }}
+                >
+                  ~{formatBytes(estimate.bytes)} (estimativa)
+                </span>
+              </div>
+            )}
 
             <div
               style={{
