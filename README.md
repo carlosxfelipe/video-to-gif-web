@@ -26,7 +26,8 @@ This project was built to provide a client-side approach to video conversion usi
 
 ## Known Limitations
 
-- **WebM and AV1 Codecs:** While this tool supports various video formats (MP4, WebM, MOV), some newer `.webm` files might fail to convert if they use the **AV1** codec. This is because the application runs entirely in the browser using a standard WebAssembly build of FFmpeg (`@ffmpeg/core`), which does not always include full AV1 decoding capabilities due to file size constraints. If a complex conversion fails due to an unsupported codec or color profile, the app will automatically try a fallback simpler conversion, but some files may still be incompatible.
+- **AV1 WebM files:** The standard WebAssembly build of FFmpeg (`@ffmpeg/core`) does not include an AV1 decoder due to file size constraints. To work around this, when an AV1 `.webm` file is detected, the app decodes it using the browser's native AV1 decoder (available in Chrome, Firefox and Edge), captures the frames, and assembles the GIF with FFmpeg. This path is slightly slower than the regular conversion and requires a browser with AV1 playback support (older versions of Safari may not work).
+- **Other unsupported codecs:** If a complex conversion fails due to an unsupported codec or color profile, the app will automatically try a fallback simpler conversion, but some files may still be incompatible.
 
 ## Getting Started
 
