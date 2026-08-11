@@ -9,7 +9,6 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import {
-  formatBytes,
   getEstimate,
   isAv1WebM,
   extractFramesWithBrowser,
@@ -358,6 +357,28 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
               />
             </div>
 
+            {estimate && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginBottom: "1.5rem",
+                  padding: "0.75rem 1rem",
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid var(--card-border)",
+                  borderRadius: "8px",
+                  fontSize: "0.85rem",
+                }}
+              >
+                <span
+                  style={{ color: "var(--text-secondary)", fontWeight: 500 }}
+                >
+                  Resolução de saída: {estimate.outW}×{estimate.outH}
+                </span>
+              </div>
+            )}
+
             <div style={{ marginBottom: "1.5rem" }}>
               <div
                 style={{
@@ -411,41 +432,6 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
                 </option>
               </select>
             </div>
-
-            {estimate && (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "1.5rem",
-                  padding: "0.75rem 1rem",
-                  background:
-                    estimate.bytes > 20e6
-                      ? "rgba(255, 165, 0, 0.1)"
-                      : "rgba(255,255,255,0.05)",
-                  border:
-                    estimate.bytes > 20e6
-                      ? "1px solid rgba(255, 165, 0, 0.3)"
-                      : "1px solid var(--card-border)",
-                  borderRadius: "8px",
-                  fontSize: "0.85rem",
-                }}
-              >
-                <span style={{ color: "var(--text-secondary)" }}>
-                  {estimate.outW}×{estimate.outH}
-                </span>
-                <span
-                  style={{
-                    fontWeight: 600,
-                    color:
-                      estimate.bytes > 20e6 ? "#ffa500" : "var(--text-primary)",
-                  }}
-                >
-                  ~{formatBytes(estimate.bytes)} (estimativa)
-                </span>
-              </div>
-            )}
 
             <div
               style={{
