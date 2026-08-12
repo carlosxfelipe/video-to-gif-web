@@ -139,11 +139,13 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
           } catch (e) {}
         }
       } else {
-        // Escreve o arquivo na memória virtual do Wasm
-        await ffmpeg.writeFile(
-          inputName,
-          new Uint8Array(await videoFile.arrayBuffer()),
-        );
+        // Usa fetch com blob URL para evitar o bug 'NotReadableError' no Android/Chrome
+        // onde o sistema revoga a permissão do arquivo após algum tempo.
+        const blobUrl = URL.createObjectURL(videoFile);
+        const res = await fetch(blobUrl);
+        const buffer = await res.arrayBuffer();
+        URL.revokeObjectURL(blobUrl);
+        await ffmpeg.writeFile(inputName, new Uint8Array(buffer));
 
         // Executa o comando de conversão usando a escala percentual exata do Swift
         // Usamos trunc( ... / 2 ) * 2 para garantir que a resolução sempre seja um número par (exigência de muitos codecs e para evitar bugs)
