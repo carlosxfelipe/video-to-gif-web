@@ -1,13 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { toBlobURL } from "@ffmpeg/util";
-import {
-  Loader2,
-  Download,
-  Video,
-  ArrowRight,
-  AlertTriangle,
-} from "lucide-react";
+import { ThinkingOrb } from "thinking-orbs";
+import { Download, Video, ArrowRight, AlertTriangle } from "lucide-react";
 import {
   getEstimate,
   isAv1WebM,
@@ -221,7 +216,7 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
   if (!loaded) {
     return (
       <div className="flex-center" style={styles.loadingContainer}>
-        <Loader2 className="dropzone-icon" style={styles.loadingIcon} />
+        <ThinkingOrb className="dropzone-icon" size={64} state="working" />
         <p>Inicializando processador de vídeo...</p>
       </div>
     );
@@ -359,7 +354,7 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
             >
               {isConverting ? (
                 <>
-                  <Loader2 style={styles.loadingIcon} /> Convertendo...
+                  <ThinkingOrb size={20} state="solving" /> Convertendo...
                 </>
               ) : (
                 <>
@@ -409,7 +404,6 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
 
 const styles: { [key: string]: React.CSSProperties } = {
   loadingContainer: { flexDirection: "column", gap: "1rem", padding: "2rem" },
-  loadingIcon: { animation: "spin 2s linear infinite" },
   header: {
     display: "flex",
     alignItems: "center",
