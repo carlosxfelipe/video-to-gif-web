@@ -28,6 +28,28 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
     height: number;
     duration: number;
   } | null>(null);
+  const [videoBuffer, setVideoBuffer] = useState<Uint8Array | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    videoFile
+      .arrayBuffer()
+      .then((buffer) => {
+        if (isMounted) setVideoBuffer(new Uint8Array(buffer));
+      })
+      .catch((e) => {
+        console.error("Erro ao ler arquivo:", e);
+        if (isMounted) {
+          alert(
+            "O sistema bloqueou a leitura do arquivo. Tente selecioná-lo novamente.",
+          );
+          onReset();
+        }
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [videoFile, onReset]);
 
   const ffmpegRef = useRef(new FFmpeg());
 
@@ -86,6 +108,11 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
   }, []);
 
   const convertToGif = async () => {
+    if (!videoBuffer) {
+      alert("Aguarde, o vídeo ainda está sendo carregado...");
+      return;
+    }
+
     setIsConverting(true);
     const ffmpeg = ffmpegRef.current;
 
@@ -104,14 +131,17 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
 
       let ret: number;
 
-      if (ext === ".webm" && (await isAv1WebM(videoFile))) {
+      // Cria um File 100% em memória, imune a bloqueios de permissão do SO
+      const memFile = new File(
+        [videoBuffer.buffer as ArrayBuffer],
+        videoFile.name,
+        { type: videoFile.type },
+      );
+
+      if (ext === ".webm" && (await isAv1WebM(memFile))) {
         // Caminho AV1: o core do ffmpeg.wasm não tem decoder AV1,
         // então decodificamos com o navegador e montamos o GIF a partir dos frames PNG
-        const frameCount = await extractFramesWithBrowser(
-          ffmpeg,
-          videoFile,
-          fps,
-        );
+        const frameCount = await extractFramesWithBrowser(ffmpeg, memFile, fps);
         if (frameCount === 0) {
           throw new Error("Nenhum frame foi extraído do vídeo AV1.");
         }
@@ -139,13 +169,8 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
           } catch (e) {}
         }
       } else {
-        // Usa fetch com blob URL para evitar o bug 'NotReadableError' no Android/Chrome
-        // onde o sistema revoga a permissão do arquivo após algum tempo.
-        const blobUrl = URL.createObjectURL(videoFile);
-        const res = await fetch(blobUrl);
-        const buffer = await res.arrayBuffer();
-        URL.revokeObjectURL(blobUrl);
-        await ffmpeg.writeFile(inputName, new Uint8Array(buffer));
+        // Escreve o buffer carregado em memória virtual do Wasm
+        await ffmpeg.writeFile(inputName, videoBuffer);
 
         // Executa o comando de conversão usando a escala percentual exata do Swift
         // Usamos trunc( ... / 2 ) * 2 para garantir que a resolução sempre seja um número par (exigência de muitos codecs e para evitar bugs)
