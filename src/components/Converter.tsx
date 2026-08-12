@@ -269,132 +269,131 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
 
       {!gifUrl ? (
         <div style={styles.mainContainer}>
-          <div style={styles.card}>
-            <h3 style={styles.cardTitle}>Configurações</h3>
-
-            <div style={styles.settingGroup}>
-              <div style={styles.settingRow}>
-                <span style={styles.settingLabel}>FPS</span>
-                <span style={styles.settingValue}>{fps}</span>
+          {isConverting ? (
+            <div style={{ ...styles.card, ...styles.loadingCardWrapper }}>
+              <div className="flex-center" style={styles.loadingStateContainer}>
+                <ThinkingOrb size={64} state="solving" />
+                <div style={styles.loadingStateTextWrapper}>
+                  <h3 style={styles.loadingStateTitle}>
+                    Convertendo seu vídeo...
+                  </h3>
+                  <p style={styles.loadingStateText}>
+                    Isso pode levar alguns instantes dependendo do tamanho e
+                    resolução.
+                  </p>
+                </div>
               </div>
-              <input
-                type="range"
-                min="1"
-                max="30"
-                value={fps}
-                onChange={(e) => setFps(Number(e.target.value))}
-                style={styles.slider}
-                disabled={isConverting}
-              />
             </div>
+          ) : (
+            <>
+              <div style={styles.card}>
+                <h3 style={styles.cardTitle}>Configurações</h3>
 
-            <div style={styles.settingGroupLast}>
-              <div style={styles.settingRow}>
-                <span style={styles.settingLabel}>Escala</span>
-                <span style={styles.settingValue}>{scale}%</span>
+                <div style={styles.settingGroup}>
+                  <div style={styles.settingRow}>
+                    <span style={styles.settingLabel}>FPS</span>
+                    <span style={styles.settingValue}>{fps}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="30"
+                    value={fps}
+                    onChange={(e) => setFps(Number(e.target.value))}
+                    style={styles.slider}
+                  />
+                </div>
+
+                <div style={styles.settingGroupLast}>
+                  <div style={styles.settingRow}>
+                    <span style={styles.settingLabel}>Escala</span>
+                    <span style={styles.settingValue}>{scale}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="10"
+                    max="100"
+                    step="5"
+                    value={scale}
+                    onChange={(e) => setScale(Number(e.target.value))}
+                    style={styles.slider}
+                  />
+                </div>
+
+                {estimate && (
+                  <div style={styles.resolutionBox}>
+                    <span style={styles.resolutionText}>
+                      Resolução de saída: {estimate.outW}×{estimate.outH}
+                    </span>
+                  </div>
+                )}
+
+                <div style={styles.settingGroupLast}>
+                  <div style={styles.settingRow}>
+                    <span style={styles.settingLabel}>Cores</span>
+                    <span style={styles.settingValue}>{colors}</span>
+                  </div>
+                  <select
+                    value={colors}
+                    onChange={(e) => setColors(Number(e.target.value))}
+                    style={styles.select}
+                  >
+                    <option value={256} style={styles.selectOption}>
+                      256 (Máxima qualidade)
+                    </option>
+                    <option value={128} style={styles.selectOption}>
+                      128 (Equilíbrio)
+                    </option>
+                    <option value={64} style={styles.selectOption}>
+                      64 (Tamanho menor)
+                    </option>
+                    <option value={32} style={styles.selectOption}>
+                      32 (Menor tamanho)
+                    </option>
+                    <option value={16} style={styles.selectOption}>
+                      16 (Cores limitadas)
+                    </option>
+                    <option value={8} style={styles.selectOption}>
+                      8 (Estilo retrô)
+                    </option>
+                  </select>
+                </div>
+
+                <div style={styles.checkboxRow}>
+                  <span style={styles.settingLabel}>Loop Infinito</span>
+                  <label style={styles.checkboxLabelWrapper}>
+                    <input
+                      type="checkbox"
+                      checked={loop}
+                      onChange={(e) => setLoop(e.target.checked)}
+                      style={styles.checkbox}
+                      data-cuelume-toggle="true"
+                    />
+                  </label>
+                </div>
               </div>
-              <input
-                type="range"
-                min="10"
-                max="100"
-                step="5"
-                value={scale}
-                onChange={(e) => setScale(Number(e.target.value))}
-                style={styles.slider}
-                disabled={isConverting}
-              />
-            </div>
 
-            {estimate && (
-              <div style={styles.resolutionBox}>
-                <span style={styles.resolutionText}>
-                  Resolução de saída: {estimate.outW}×{estimate.outH}
-                </span>
-              </div>
-            )}
-
-            <div style={styles.settingGroupLast}>
-              <div style={styles.settingRow}>
-                <span style={styles.settingLabel}>Cores</span>
-                <span style={styles.settingValue}>{colors}</span>
-              </div>
-              <select
-                value={colors}
-                onChange={(e) => setColors(Number(e.target.value))}
-                style={styles.select}
-                disabled={isConverting}
-              >
-                <option value={256} style={styles.selectOption}>
-                  256 (Máxima qualidade)
-                </option>
-                <option value={128} style={styles.selectOption}>
-                  128 (Equilíbrio)
-                </option>
-                <option value={64} style={styles.selectOption}>
-                  64 (Tamanho menor)
-                </option>
-                <option value={32} style={styles.selectOption}>
-                  32 (Menor tamanho)
-                </option>
-                <option value={16} style={styles.selectOption}>
-                  16 (Cores limitadas)
-                </option>
-                <option value={8} style={styles.selectOption}>
-                  8 (Estilo retrô)
-                </option>
-              </select>
-            </div>
-
-            <div style={styles.checkboxRow}>
-              <span style={styles.settingLabel}>Loop Infinito</span>
-              <label style={styles.checkboxLabelWrapper}>
-                <input
-                  type="checkbox"
-                  checked={loop}
-                  onChange={(e) => setLoop(e.target.checked)}
-                  style={styles.checkbox}
-                  disabled={isConverting}
-                  data-cuelume-toggle="true"
-                />
-              </label>
-            </div>
-          </div>
-
-          <div className="actions-container">
-            <button
-              className="btn-primary"
-              onClick={onReset}
-              disabled={isConverting}
-              style={styles.btnSecondary}
-              data-cuelume-press="true"
-              data-cuelume-release="true"
-            >
-              Voltar
-            </button>
-            <button
-              className="btn-primary"
-              onClick={convertToGif}
-              disabled={isConverting}
-              style={styles.btnPrimary}
-              data-cuelume-press="true"
-              data-cuelume-release="true"
-            >
-              {isConverting ? (
-                <>
-                  <ThinkingOrb size={20} state="solving" /> Convertendo...
-                </>
-              ) : (
-                <>
+              <div className="actions-container">
+                <button
+                  className="btn-primary"
+                  onClick={onReset}
+                  style={styles.btnSecondary}
+                  data-cuelume-press="true"
+                  data-cuelume-release="true"
+                >
+                  Voltar
+                </button>
+                <button
+                  className="btn-primary"
+                  onClick={convertToGif}
+                  style={styles.btnPrimary}
+                  data-cuelume-press="true"
+                  data-cuelume-release="true"
+                >
                   <ArrowRight /> Iniciar Conversão
-                </>
-              )}
-            </button>
-          </div>
-
-          {isConverting && (
-            <p style={styles.processingText}>
-              Processando vídeo, por favor aguarde...
-            </p>
+                </button>
+              </div>
+            </>
           )}
         </div>
       ) : (
@@ -402,7 +401,7 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
           <h3 style={styles.successTitle}>Pronto! 🎉</h3>
           <img src={gifUrl} alt="Converted GIF" className="result-image" />
 
-          <div style={styles.successActions}>
+          <div className="actions-container">
             <a
               href={gifUrl}
               download={`${videoFile.name.replace(".mp4", "")}.gif`}
@@ -485,6 +484,18 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   settingLabel: { fontSize: "0.9rem", color: "var(--text-secondary)" },
   settingValue: { fontSize: "0.9rem", fontWeight: 600 },
+  loadingCardWrapper: { padding: "4rem 2rem" },
+  loadingStateContainer: { flexDirection: "column", gap: "1.5rem" },
+  loadingStateTextWrapper: { textAlign: "center" },
+  loadingStateTitle: {
+    fontSize: "1.2rem",
+    color: "var(--text-primary)",
+    marginBottom: "0.5rem",
+  },
+  loadingStateText: {
+    color: "var(--text-secondary)",
+    fontSize: "0.95rem",
+  },
   slider: { width: "100%", accentColor: "var(--accent-1)" },
   select: {
     width: "100%",
@@ -539,5 +550,4 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "var(--text-secondary)",
   },
   successTitle: { marginBottom: "1rem", color: "var(--accent-2)" },
-  successActions: { display: "flex", gap: "1rem" },
 };

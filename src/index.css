@@ -87,7 +87,7 @@ p.subtitle {
   background: rgba(0,0,0,0.2);
 }
 
-.dropzone:hover, .dropzone.active {
+.dropzone:hover, .dropzone.dragging {
   border-color: var(--accent-1);
   background: rgba(139, 92, 246, 0.05);
 }
@@ -187,7 +187,7 @@ p.subtitle {
   gap: 1rem;
   width: 100%;
   max-width: 400px;
-  margin-top: 1.5rem;
+  margin: 1.5rem auto 0;
 }
 
 .actions-container .btn-primary {
@@ -199,7 +199,7 @@ p.subtitle {
     flex-direction: column;
   }
   
-  .actions-container > button {
+  .actions-container > * {
     flex: none !important;
     width: 100%;
   }
