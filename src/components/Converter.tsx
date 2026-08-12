@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { toBlobURL } from "@ffmpeg/util";
 import {
   Loader2,
   Download,
@@ -145,7 +145,10 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
         }
       } else {
         // Escreve o arquivo na memória virtual do Wasm
-        await ffmpeg.writeFile(inputName, await fetchFile(videoFile));
+        await ffmpeg.writeFile(
+          inputName,
+          new Uint8Array(await videoFile.arrayBuffer()),
+        );
 
         // Executa o comando de conversão usando a escala percentual exata do Swift
         // Usamos trunc( ... / 2 ) * 2 para garantir que a resolução sempre seja um número par (exigência de muitos codecs e para evitar bugs)
