@@ -335,7 +335,7 @@ export const Converter: React.FC<ConverterProps> = ({ videoFile, onReset }) => {
             </div>
           </div>
 
-          <div style={styles.actionsContainer}>
+          <div className="actions-container">
             <button
               className="btn-primary"
               onClick={onReset}
@@ -504,12 +504,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     accentColor: "var(--accent-1)",
     cursor: "pointer",
   },
-  actionsContainer: {
-    display: "flex",
-    gap: "1rem",
-    width: "100%",
-    maxWidth: "400px",
-  },
+
   btnSecondary: { flex: 1, background: "rgba(255,255,255,0.1)" },
   btnPrimary: { flex: 2 },
   btnHalf: { flex: 1, textDecoration: "none" },

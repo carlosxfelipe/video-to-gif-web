@@ -181,3 +181,26 @@ p.subtitle {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+.actions-container {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  max-width: 400px;
+  margin-top: 1.5rem;
+}
+
+.actions-container .btn-primary {
+  margin-top: 0;
+}
+
+@media (max-width: 600px) {
+  .actions-container {
+    flex-direction: column;
+  }
+  
+  .actions-container > button {
+    flex: none !important;
+    width: 100%;
+  }
+}
