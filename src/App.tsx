@@ -11,6 +11,18 @@ function App() {
     bind();
   }, []);
 
+  useEffect(() => {
+    const rootEl = document.getElementById("root");
+    if (rootEl) {
+      if (file) {
+        rootEl.style.maxWidth = "1200px";
+        rootEl.style.transition = "max-width 0.3s ease";
+      } else {
+        rootEl.style.maxWidth = "800px";
+      }
+    }
+  }, [file]);
+
   return (
     <>
       <div className="glass-card">
